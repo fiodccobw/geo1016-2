@@ -203,10 +203,21 @@ bool Triangulation::triangulation(
         "\t    - do NOT include the 'build' directory (which contains the intermediate files in a build step).\n"
         "\t    - make sure your code compiles and can reproduce your results without any modification.\n\n" << std::flush;
 
+    if (points_0.size() != points_1.size()) return false;
     //STEP1--------------------------------------------
     //1.1 Normalization
     mat3 T;
     mat3 T0, T1;
+    for (auto p : points_0) {
+        p[0] /= p[2];
+        p[1] /= p[2];
+        p[2] /= p[2];
+    }
+    for (auto p : points_1) {
+        p[0] /= p[2];
+        p[1] /= p[2];
+        p[2] /= p[2];
+    }
     std::vector<vec3> points_0n = normalize(points_0, T0);
     std::vector<vec3> points_1n = normalize(points_1, T1);
     std::cout << "T:" << T0 << std::endl;
