@@ -172,11 +172,11 @@ vec3 get3dpoint(const vec3& point1,
         float error = dis_square(pt1_estimated, pt1) + dis_square(pt2_estimated, pt2);
         float dis_min = error;
         vec3 best_pt(pt.x, pt.y, pt.z);
-        if(error < 1) k_max = 20000;
-        else if (error < 2) k_max = 50000;
-        else if (error < 5) k_max = 120000;
-        else if (error < 10) k_max = 300000;
-        else k_max = 500000;
+        if(error < 1) k_max = 1000;
+        else if (error < 2) k_max = 2000;
+        else if (error < 5) k_max = 5000;
+        else if (error < 10) k_max = 10000;
+        else k_max = 20000;
 
         for (int k = 0; k < k_max && error > tolerance; ++k){
             // refresh vec_c
@@ -248,8 +248,8 @@ int countInfront(const std::vector<vec3>& points1,
     Matrix<double> M1(3, 4, 0.0);
     Matrix<double> M2(3, 4, 0.0);
     getM(K, R, t, M1, M2);
-    std::cout << "M1" << M1 << std::endl;
-    std::cout << "M2" << M2 << std::endl;
+//    std::cout << "M1" << M1 << std::endl;
+//    std::cout << "M2" << M2 << std::endl;
 
     for (int i = 0; i < points1.size(); i++) {
         vec3 P, Q;
@@ -277,7 +277,7 @@ std::vector<vec3> normalize(const std::vector<vec3>& points, mat3& t) {
     }
     double t_x = sum_x / points.size();
     double t_y = sum_y / points.size();
-    std::cout << t_x << std::endl;
+//    std::cout << t_x << std::endl;
 
     double sum_dist = 0;
     for (auto point : points) {
@@ -395,8 +395,8 @@ bool Triangulation::triangulation(
     auto points_0_normalized = normalize(points_0, t0);
     mat3 t1;
     auto points_1_normalized = normalize(points_1, t1);
-    std::cout << "T0:" << t0 << std::endl;
-    std::cout << "T0:" << t1 << std::endl;
+//    std::cout << "T0:" << t0 << std::endl;
+//    std::cout << "T0:" << t1 << std::endl;
 
     //--------------------------------------------------------------------------------------------------------------
     // step 2.3: Generate matrix W
@@ -425,7 +425,7 @@ bool Triangulation::triangulation(
     svd_decompose(mat_W, mat_U_W, mat_S_W, mat_V_W);
     auto vec_F_original = mat_V_W.get_column(8);
     Matrix<double> mat_F_original(3, 3, vec_F_original);
-    std::cout << "original matrix F:" << mat_F_original << std::endl;
+//    std::cout << "original matrix F:" << mat_F_original << std::endl;
 
     // Get estimated Fq by using SVD(F)
     Matrix<double> mat_U_F(3, 3, 0.0);   // M * M matrix, initialized with 0s
@@ -435,12 +435,12 @@ bool Triangulation::triangulation(
     Matrix<double> mat_S_F_estimated(mat_S_F);
     mat_S_F_estimated.set(2, 2, 0);
     Matrix<double> mat_F_estimated(mat_U_F * mat_S_F_estimated * mat_V_F.transpose());
-    std::cout << "estimated matrix F:" << mat_F_estimated << std::endl;
+//    std::cout << "estimated matrix F:" << mat_F_estimated << std::endl;
 
     // Denormalization
     mat3 mat3_F(transpose(t1) * to_mat3(mat_F_estimated) * t0);
     Matrix<double> mat_F(to_Matrix(mat3_F));
-    std::cout << "final matrix F:" << mat_F << std::endl;
+//    std::cout << "final matrix F:" << mat_F << std::endl;
 
     //--------------------------------------------------------------------------------------------------------------
     // step 3: Compute the essential matrix E
@@ -451,7 +451,7 @@ bool Triangulation::triangulation(
     //--------------------------------------------------------------------------------------------------------------
     // step 3.2: Compute the essential matrix E
     Matrix<double> mat_E(mat_K.transpose() * mat_F * mat_K);
-    std::cout << "matrix E:" << mat_E << std::endl;
+//    std::cout << "matrix E:" << mat_E << std::endl;
 
     //--------------------------------------------------------------------------------------------------------------
     // step 4: Recover rotation R and t
@@ -480,8 +480,8 @@ bool Triangulation::triangulation(
                           mat_U_E *
                           mat_W_component.transpose() *
                           mat_V_E.transpose());
-    std::cout << "R1:" << mat_R1 << std::endl;
-    std::cout << "R2:" << mat_R2 << std::endl;
+//    std::cout << "R1:" << mat_R1 << std::endl;
+//    std::cout << "R2:" << mat_R2 << std::endl;
 
     //--------------------------------------------------------------------------------------------------------------
     // step 4.2: Recover vector t
@@ -492,8 +492,8 @@ bool Triangulation::triangulation(
     std::vector<double> vec_t2 {-mat_U_E.get(0, 2),
                                 -mat_U_E.get(1, 2),
                                 -mat_U_E.get(2, 2)};
-    std::cout << "T1:" << vec_t1 << std::endl;
-    std::cout << "T2:" << vec_t2 << std::endl;
+//    std::cout << "T1:" << vec_t1 << std::endl;
+//    std::cout << "T2:" << vec_t2 << std::endl;
 
     //--------------------------------------------------------------------------------------------------------------
     // step 4.3: Find the correct R and t
@@ -539,8 +539,8 @@ bool Triangulation::triangulation(
             break;
     }
 
-    std::cout << "R:" << R << std::endl;
-    std::cout << "t:" << t << std::endl;
+//    std::cout << "R:" << R << std::endl;
+//    std::cout << "t:" << t << std::endl;
 
     //--------------------------------------------------------------------------------------------------------------
     // step 5: Triangulation
@@ -553,8 +553,8 @@ bool Triangulation::triangulation(
     tt[2] = t[2];
     Matrix<double> mat_R(to_Matrix(R));
     getM(mat_K, mat_R, tt, mat_M1, mat_M2);
-    std::cout << "M1" << mat_M1 << std::endl;
-    std::cout << "M2" << mat_M2 << std::endl;
+//    std::cout << "M1" << mat_M1 << std::endl;
+//    std::cout << "M2" << mat_M2 << std::endl;
 
     //--------------------------------------------------------------------------------------------------------------
     // step 5.2: Compute the 3D points using linear method
