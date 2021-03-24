@@ -225,8 +225,8 @@ vec3 get3dpoint(const vec3& point1,
 //            std::cout << "diff(pt2 - pt(k)): x: " << pt2.x - pt2_estimated.x << " y: " << pt2.y - pt2_estimated.y << " z: " << pt2.z - pt2_estimated.z << std::endl;
 //            std::cout << "diff(pt3D(1) - pt3D(k)): x: " << pt_tmp.x - pt_k.x << " y: " << pt_tmp.y - pt_k.y << " z: " << pt_tmp.z - pt_k.z << std::endl;
         }
-        
-        if (error <= tolerance) std::cout << "pt error has converged" <<std::endl;
+
+//        if (error <= tolerance) std::cout << "pt error has converged" <<std::endl;
         pt.x = best_pt.x;
         pt.y = best_pt.y;
         pt.z = best_pt.z;
