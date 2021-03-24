@@ -577,10 +577,10 @@ bool Triangulation::triangulation(
         vec3 pt = get3dpoint(points_0[i], points_1[i], mat_M1, mat_M2);
         points_3d.push_back(pt);
     }
-    std::cout << "size: " << points_3d.size() << "accuracy: " << accuracy(points_0,
-                                                                          points_1,
-                                                                          points_3d,
-                                                                          mat_M1,
-                                                                          mat_M2) << std::endl;
+//     std::cout << "size: " << points_3d.size() << "accuracy: " << accuracy(points_0,
+//                                                                           points_1,
+//                                                                           points_3d,
+//                                                                           mat_M1,
+//                                                                           mat_M2) << std::endl;
     return !points_3d.empty();
 }
