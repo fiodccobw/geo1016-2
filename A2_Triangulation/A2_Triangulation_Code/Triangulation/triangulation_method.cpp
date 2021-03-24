@@ -83,23 +83,38 @@ float dis_square(vec3 &pt0, vec3 &pt1){
     return (pt0.x - pt1.x) * (pt0.x - pt1.x) + (pt0.y - pt1.y) * (pt0.y - pt1.y);
 }
 
-vec3 gradient(vec4& pt_k,
-              vec3& pt1,
-              vec3& pt2,
-              vec4& e,
-              mat34& M1,
-              mat34& M2){
-    vec3 pt1_estimated = M1 * pt_k;
-    pt1_estimated /= pt1_estimated[2];
-    vec3 pt2_estimated = M2 * pt_k;
-    pt2_estimated /= pt2_estimated[2];
-    float dis_2 = dis_square(pt1_estimated, pt1) + dis_square(pt2_estimated, pt2);
-    float dis = pow(dis_2, -0.5);
-    vec3 result;
-    result.x = -dis * (e.x * M1(0, 0) + e.y * M1(1, 0) + e.z * M2(0, 0) + e.w * M2(1, 0));
-    result.y = -dis * (e.x * M1(0, 1) + e.y * M1(1, 1) + e.z * M2(0, 1) + e.w * M2(1, 1));
-    result.z = -dis * (e.x * M1(0, 2) + e.y * M1(1, 2) + e.z * M2(0, 2) + e.w * M2(1, 2));
-    return result;
+double accuracy(const std::vector<vec3> &points_0,
+                const std::vector<vec3> &points_1,
+                const std::vector<vec3> &points_3d,
+                Matrix<double>& M0,
+                Matrix<double>& M1){
+    mat34 mat_M0;
+    mat34 mat_M1;
+    double sum_error = 0;
+    for (int i = 0; i < 3; ++i){
+        mat_M0.set_row(i, vec4{float (M0.get(i, 0)),
+                                  float(M0.get(i, 1)),
+                                  float (M0.get(i, 2)),
+                                  float(M0.get(i, 3))});
+        mat_M1.set_row(i, vec4{float (M1.get(i, 0)),
+                               float(M1.get(i, 1)),
+                               float (M1.get(i, 2)),
+                               float(M1.get(i, 3))});
+    }
+
+    for (int i = 0; i < points_0.size(); ++i){
+        vec4 pt3d(points_3d[i].x, points_3d[i].y, points_3d[i].z, 1);
+        vec3 pt0 = points_0[i];
+        vec3 pt1 = points_1[i];
+        auto pt0_estimated = mat_M0 * pt3d;
+        pt0_estimated /= pt0_estimated[2];
+        auto pt1_estimated = mat_M1 * pt3d;
+        pt1_estimated /= pt1_estimated[2];
+        double error = pow(dis_square(pt1_estimated, pt1), 0.5) + pow(dis_square(pt0_estimated, pt0), 0.5);
+        sum_error += error;
+//        std::cout <<"error: "<< error << std::endl;
+    }
+    return sum_error / points_3d.size();
 }
 
 vec3 get3dpoint(const vec3& point1,
@@ -559,9 +574,13 @@ bool Triangulation::triangulation(
     //--------------------------------------------------------------------------------------------------------------
     // step 5.2: Compute the 3D points using linear method
     for (int i = 0; i < points_0.size(); i++) {
-        vec3 pt = get3dpoint(points_0[i], points_1[i], mat_M1, mat_M2, false);
+        vec3 pt = get3dpoint(points_0[i], points_1[i], mat_M1, mat_M2);
         points_3d.push_back(pt);
     }
-
+    std::cout << "size: " << points_3d.size() << "accuracy: " << accuracy(points_0,
+                                                                          points_1,
+                                                                          points_3d,
+                                                                          mat_M1,
+                                                                          mat_M2) << std::endl;
     return !points_3d.empty();
 }
